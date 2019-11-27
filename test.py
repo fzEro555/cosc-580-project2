@@ -21,7 +21,7 @@ if __name__ == "__main__":
     index = 0
     attrnames = []
     primary = []
-    sql = "CREATE DATABASE STUDENT;"
+    sql = "CREATE DATABASE TEACHER;"
     dbmanager = Dbmanager()
     sql = sql.replace(';', '')
     while sql.find("'") != -1:
