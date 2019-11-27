@@ -3,6 +3,7 @@ from dbmanager import *
 from table import *
 import re
 from settings import *
+
 def get_attribute_constrain(attrsCons):
     attributes = attrsCons.split(",")
     i=0
@@ -63,12 +64,12 @@ def create_table(i, tokens, dbmanager):
         table.storage.fill(0)
         print(table.storage)
         # unsure whether this line is needed
-        np.put(table.storage, 0, "key")
+        np.put(table.storage, 0, "tuple_index")
         for x in range(1, table.col_number):
             np.put(table.storage, x, attribute_names[x - 1])
         # add the table into the current database
         dbmanager.current_db.add_relation(table)
 
-def restore_dbmanager():
-    dbmanager = Dbmanager()
-    return dbmanager
+def create_index():
+    pass
+

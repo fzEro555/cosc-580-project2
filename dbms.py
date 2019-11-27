@@ -4,11 +4,17 @@ from dbmanager import *
 from database import *
 from execute_create import *
 
+def load_dbmanager():
+    dbmanager = Dbmanager()
+    return dbmanager
+def save_dbmanager(dbmanager):
+    pass
+
 def main():
     #database = load_relations()
     #database = restore_state()
 
-    dbmanager = restore_dbmanager()
+    dbmanager = load_dbmanager()
     cmd = ""
     prompt = "> "
     cmd_list = []
@@ -17,9 +23,9 @@ def main():
             cmd = input(prompt)
             cmd_list.append(cmd)
             dbmanager = parse_sql(cmd, dbmanager)
-            save_state(database)
+            save_dbmanager()
     except:
-         save_state(database) # save state even if error occurs
+         save_dbmanager() # save state even if error occurs
          print("An unknown error occurred.")
 
 

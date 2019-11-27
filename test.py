@@ -56,14 +56,14 @@ if __name__ == "__main__":
             attr = attr.split(' ')
             attrnames.append(attr[0])
 
-    row_number = 1
+    row_number = 2
     col_number = len(attrnames) + 1
     table = Table(row_number, col_number)
     table.set_name(table_name)
     table.set_primary_key(primary)
     table.set_attributes(attrnames)
     table.storage.fill(0)
-    print(table.storage)
+
     np.put(table.storage, index, "key")
     for x in range(1, table.col_number):
         np.put(table.storage, x, attrnames[x - 1])
