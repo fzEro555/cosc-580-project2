@@ -3,7 +3,8 @@ from dbmanager import *
 from table import *
 import re
 from settings import *
-
+from os import *
+from os.path import *
 def get_attribute_constrain(attrsCons):
     attributes = attrsCons.split(",")
     i=0
@@ -24,7 +25,7 @@ def create_database(i, tokens, dbmanager):
         root_directory = os.path.join(os.getcwd(), DB_PATH)
         new_dbdir = os.path.join(root_directory, new_dbname)
         # make a new db directory
-        os.path.mkdir(new_dbdir)
+        os.mkdir(new_dbdir)
         dbmanager.add_db(new_database)
     else:
         print("Error: Database %s already exists" % new_dbname)
