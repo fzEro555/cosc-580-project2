@@ -30,6 +30,6 @@ class Dbmanager:
         return False
 
     def rm_db(self, db):
-        if self.relation_exists(db.name):
+        if self.db_exists(db.name):
             self.dbs.remove(db)
             self.db_num -= 1

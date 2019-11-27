@@ -9,15 +9,18 @@ from os import *
 from os.path import *
 import pickle
 
+# load the existence dbmanager
 def load_dbmanager():
     dbmanager = Dbmanager()
     dbmanager_path = os.path.join(os.getcwd(), DB_PATH)
+    # get the directory of each database
     dbs = [dir for dir in listdir(dbmanager_path) if isdir(join(dbmanager_path, dir))]
     for db in dbs:
         database = Database(db)
         dbmanager.dbs.append(database)
         current_db_path = os.path.join(dbmanager_path, db)
         #print(current_db_path)
+        # get the relations in each database
         relations = [relation for relation in listdir(current_db_path) if isfile(join(current_db_path, relation))]
         #print(relations)
         for relation in relations:
@@ -27,6 +30,7 @@ def load_dbmanager():
                 database.relations.append(relation)
     return dbmanager
 
+# change the state of dbmanager and save it
 def save_dbmanager(dbmanager):
     dbmanager_path = os.path.join(os.getcwd(), DB_PATH)
     for db in dbmanager.dbs:
@@ -50,6 +54,5 @@ def main():
     except:
          # save state even if error occurs
          save_dbmanager()
-         print("An unknown error occurred.")
-
+         print("Error occurred.")
 main()

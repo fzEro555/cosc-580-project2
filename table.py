@@ -6,6 +6,7 @@ class Table:
         self.storage = np.chararray((rows, cols), itemsize=20)
         self.row_number = rows
         self.col_number = cols
+        # index looks like ('in', ['stu_num', 'stu_name'])
         self.indexes = []
         self.attributes = []
 
@@ -26,8 +27,21 @@ class Table:
     def set_col_number(self, col_num):
         self.col_number = col_num
 
-    def columnExists(self, attribute):
+    def column_exists(self, attribute):
         return attribute in self.attributes
 
-    def add_index(self, index_name, attribute_name, ordering):
-        self.indexes.append((index_name, attribute_name, ordering))
+    def add_index(self, index_name, attributes):
+        self.indexes.append((index_name, attributes))
+
+    def index_exists(self, index_name, attributes):
+        for index in self.indexes:
+            if index_name == index[0]:
+                print("Error: This index name already exists")
+                return True
+        for index in self.indexes:
+            if attributes == index[1]:
+                print("Error: There exists an index on selected columns")
+                return True
+        else:
+            return False
+
