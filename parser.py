@@ -1,7 +1,7 @@
 # coding=utf-8
 from database import *
 from dbmanager import *
-from handler import *
+from execute_create import *
 def parse_sql(sql,dbmanager):
     i = 0
     evaluate_flag = False
@@ -19,19 +19,10 @@ def parse_sql(sql,dbmanager):
     if first_token == "create":
         # create a new database
         if sql_tokens[i+1] == "database":
-            new_dbname = sql_tokens[i+2]
-            if not dbmanager.db_exists(new_dbname):
-                new_database = Database(new_dbname)
-                directory = os.path.join('./Databases', new_dbname)
-                os.path.mkdir(directory)
-                dbmanager.add_db(new_database)
-            else:
-                print("Error: Database %s already exists" %sql_tokens[i+2])
+            create_database(i, sql_tokens, dbmanager)
         # create a new table in an existing database
         elif sql_tokens[i+1] == "table":
             create_table(i, sql_tokens, dbmanager)
-            if evaluate_flag:
-                pass
         # create an index
         elif sql_tokens[i+1] == "index":
             parse_create_index(i, sql_tokens)

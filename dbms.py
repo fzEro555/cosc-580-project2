@@ -2,7 +2,7 @@
 from parser import *
 from dbmanager import *
 from database import *
-from handler import *
+from execute_create import *
 
 def main():
     #database = load_relations()
@@ -16,7 +16,7 @@ def main():
         while cmd != "exit":
             cmd = input(prompt)
             cmd_list.append(cmd)
-            database = parse_sql(cmd, dbmanager)
+            dbmanager = parse_sql(cmd, dbmanager)
             save_state(database)
     except:
          save_state(database) # save state even if error occurs
