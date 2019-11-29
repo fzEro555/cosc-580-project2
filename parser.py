@@ -1,6 +1,7 @@
 # coding=utf-8
 from database import *
 from dbmanager import *
+from execute_drop import *
 from execute_create import *
 def parse_sql(sql,dbmanager):
     evaluate_flag = False
@@ -31,14 +32,10 @@ def parse_sql(sql,dbmanager):
     elif first_token == "drop":
         # drop a table
         if sql_tokens[1] == "table":
-            parse_drop_table(sql_tokens)
-            if evaluate_flag:
-                pass
+            dbmanager = drop_table(sql_tokens, dbmanager)
         # drop an index
         elif sql_tokens[1] == "index":
-            parse_drop_index(sql_tokens)
-            if evaluate_flag:
-                pass
+            dbmanager = drop_index(sql_tokens, dbmanager)
         else:
             print("Error: Syntax error")
 
@@ -84,12 +81,6 @@ def parse_sql(sql,dbmanager):
     return dbmanager
 
 
-
-def parse_drop_table(tokens):
-    pass
-
-def parse_drop_index(tokens):
-    pass
 
 def parse_insert(tokens):
     pass

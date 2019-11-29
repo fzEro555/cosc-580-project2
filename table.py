@@ -33,14 +33,9 @@ class Table:
     def add_index(self, index_name, attributes):
         self.indexes.append((index_name, attributes))
 
-    def index_exists(self, index_name, attributes):
+    def index_exists(self, index_name):
         for index in self.indexes:
             if index_name == index[0]:
-                print("Error: This index name already exists")
-                return True
-        for index in self.indexes:
-            if attributes == index[1]:
-                print("Error: There exists an index on selected columns")
                 return True
         else:
             return False

@@ -90,8 +90,12 @@ def create_index(tokens, dbmanager):
             attributes = attributes.split(", ")
             if dbmanager.current_db.relation_exists(table_name):
                 table = dbmanager.current_db.get_relation(table_name)
-                if not table.index_exists(index_name, attributes):
+                if not table.index_exists(index_name):
                     table.add_index(index_name, attributes)
+                else:
+                    print("Error: Index already exists")
+            else:
+                print("Error: Relation not exists")
         else:
             print("Error: Syntax error")
     return dbmanager
