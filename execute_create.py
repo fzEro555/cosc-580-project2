@@ -4,7 +4,7 @@ from table import *
 import re
 from settings import *
 from os import *
-from os.path import *
+
 def get_attribute_constrain(attrsCons):
     attributes = attrsCons.split(",")
     i=0
