@@ -1,9 +1,10 @@
 # coding=utf-8
 from dbmanager import *
+from database import *
 from table import *
 import re
 from settings import *
-from os import *
+import os
 
 def get_attribute_constrain(attrsCons):
     attributes = attrsCons.split(",")
@@ -23,22 +24,27 @@ def create_database(tokens, dbmanager):
     if not dbmanager.db_exists(new_dbname):
         new_database = Database(new_dbname)
         root_directory = os.path.join(os.getcwd(), DB_PATH)
-        new_dbdir = os.path.join(root_directory, new_dbname)
+        new_dbdir = os.path.join(root_directory, new_database.name)
         # make a new db directory
         os.mkdir(new_dbdir)
         dbmanager.add_db(new_database)
+        print("Database %s is created successfully" % new_dbname)
+        return dbmanager
     else:
         print("Error: Database %s already exists" % new_dbname)
-    return dbmanager
+        return dbmanager
 
 def create_table(tokens, dbmanager):
     if dbmanager.current_db == None:
         print("Error: No database selected")
+        return dbmanager
     else:
+        current_db= dbmanager.get_current_db()
         # get the table name
         table_name = tokens[2]
-        if dbmanager.get_current_db().relation_exists(table_name):
+        if current_db.relation_exists(table_name):
             print("Error: Relation already exists")
+            return dbmanager
         else:
             primary_key = []
             attribute_names = []
@@ -47,6 +53,7 @@ def create_table(tokens, dbmanager):
             attributes_string = re.compile(reg).findall(sql)
             attributes = get_attribute_constrain(attributes_string[0])
             for attribute in attributes:
+                attribute = attribute.lstrip()
                 # get the primary key
                 reg = "primary\s*key.*\((.*)\)+"
                 primary = re.compile(reg).findall(attribute)
@@ -61,24 +68,23 @@ def create_table(tokens, dbmanager):
 
             # create a table, the first row contains attribute names
             row_number = 1
-            col_number = len(attribute_names) + 1
+            col_number = len(attribute_names)
             table = Table(row_number, col_number)
             table.set_name(table_name)
             table.set_primary_key(primary_key)
             table.set_attributes(attribute_names)
             table.storage.fill(0)
-            print(table.storage)
-            # unsure whether this line is needed
-            np.put(table.storage, 0, "tuple_index")
-            for x in range(1, table.col_number):
-                np.put(table.storage, x, attribute_names[x - 1])
+            for x in range(0, table.col_number):
+                np.put(table.storage, x, attribute_names[x])
             # add the table into the current database
-            dbmanager.current_db.add_relation(table)
-    return dbmanager
+            current_db.add_relation(table)
+            print("Table %s is created successfully" %table.name)
+            return dbmanager
 
 def create_index(tokens, dbmanager):
     if dbmanager.current_db == None:
         print("Error: No database selected")
+        return dbmanager
     else:
         index_name = tokens[2]
         if tokens[3] == "on":
@@ -92,10 +98,14 @@ def create_index(tokens, dbmanager):
                 table = dbmanager.current_db.get_relation(table_name)
                 if not table.index_exists(index_name):
                     table.add_index(index_name, attributes)
+                    print("Index %s is created" %index_name)
+                    return dbmanager
                 else:
                     print("Error: Index already exists")
+                    return dbmanager
             else:
                 print("Error: Relation not exists")
+                return dbmanager
         else:
             print("Error: Syntax error")
-    return dbmanager
+            return dbmanager

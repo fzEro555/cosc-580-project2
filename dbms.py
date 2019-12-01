@@ -5,9 +5,15 @@ from database import *
 from settings import *
 from execute_create import *
 from database import *
-from os import *
-from os.path import *
-import pickle
+import os
+import io
+from os import listdir
+from os.path import isfile, join, isdir
+import numpy as np
+import jsonpickle
+import jsonpickle.ext.numpy as jsonpickle_numpy
+jsonpickle_numpy.register_handlers()
+jsonpickle.handlers.registry.register(np.chararray, base=True)
 
 # load the existence dbmanager
 def load_dbmanager():
@@ -25,10 +31,13 @@ def load_dbmanager():
         #print(relations)
         for relation in relations:
             current_relation_path = os.path.join(current_db_path, relation)
-            with open(current_relation_path, 'rb') as input:
-                relation = pickle.load(input)
+            with io.open(current_relation_path) as input:
+                # maybe use json or maybe use pickle, not sure
+
+                relation = jsonpickle.decode(input.read())
                 database.relations.append(relation)
     return dbmanager
+
 
 # change the state of dbmanager and save it
 def save_dbmanager(dbmanager):
@@ -36,23 +45,21 @@ def save_dbmanager(dbmanager):
     for db in dbmanager.dbs:
         db_path = os.path.join(dbmanager_path, str(db.name))
         for relation in db.relations:
+            print(relation.name)
+            print(relation.storage)
             relation_path = os.path.join(db_path, str(relation.name))
-            with open(relation_path, 'wb') as output:
-                pickle.dump(relation, output, pickle.HIGHEST_PROTOCOL)
+            with io.open(relation_path, 'w') as output:
+                output.write(jsonpickle.encode(relation))
+
 
 def main():
     dbmanager = load_dbmanager()
-    cmd = ""
-    prompt = "> "
     cmd_list = []
-    try:
-        while cmd != "exit":
-            cmd = input(prompt)
-            cmd_list.append(cmd)
-            dbmanager = parse_sql(cmd, dbmanager)
-            save_dbmanager()
-    except:
-         # save state even if error occurs
-         save_dbmanager()
-         print("Error occurred.")
+    cmd = ""
+
+    while cmd != "exit":
+        cmd = input()
+        dbmanager = parse_sql(cmd, dbmanager)
+        save_dbmanager(dbmanager)
+
 main()

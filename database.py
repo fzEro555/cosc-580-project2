@@ -2,7 +2,7 @@
 
 class Database:
     def __init__(self, name):
-        self.name = name
+        self.name = name.upper()
         self.relations = []
         self.relation_num = 0
 

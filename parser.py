@@ -3,6 +3,7 @@ from database import *
 from dbmanager import *
 from execute_drop import *
 from execute_create import *
+from execute_insert import *
 def parse_sql(sql,dbmanager):
     evaluate_flag = False
     sql = sql.replace(';', '')
@@ -30,8 +31,11 @@ def parse_sql(sql,dbmanager):
             print("Error: Syntax error")
 
     elif first_token == "drop":
+        # drop a database
+        if sql_tokens[1] == "database":
+            dbmanager = drop_database(sql_tokens, dbmanager)
         # drop a table
-        if sql_tokens[1] == "table":
+        elif sql_tokens[1] == "table":
             dbmanager = drop_table(sql_tokens, dbmanager)
         # drop an index
         elif sql_tokens[1] == "index":
@@ -41,9 +45,7 @@ def parse_sql(sql,dbmanager):
 
     elif first_token == "insert":
         if sql_tokens[1] == "into":
-            parse_insert(sql_tokens)
-            if evaluate_flag:
-                pass
+            dbmanager = insert_into(sql_tokens, dbmanager)
         else:
             print("Error: Syntax error")
 
@@ -70,8 +72,9 @@ def parse_sql(sql,dbmanager):
         if sql_tokens[1] == "database":
             if dbmanager.db_exists(sql_tokens[2]):
                 dbmanager.set_current_db(dbmanager.get_db(sql_tokens[2]))
+                print("The current database is %s" %(sql_tokens[2]).upper())
             else:
-                print("Error: Database %s not exists" %sql_tokens[2])
+                print("Error: Database %s not exists" %(sql_tokens[2]).upper())
         else:
             print("Error: Syntax error")
 

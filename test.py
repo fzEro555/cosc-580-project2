@@ -3,6 +3,10 @@ import re
 from table import *
 from dbmanager import *
 from execute_create import *
+import os
+import io
+from table import *
+import jsonpickle
 def getAttrCons(attrsCons):
     attrs = attrsCons.split(",")
     i=0
@@ -54,7 +58,7 @@ if __name__ == "__main__":
     index = 0
     attrnames = []
     primary = []
-    sql = "CREATE INDEX IN ON STUDENT (STU_NUM, stu_name);"
+    sql = "INSERT INTO `corporate_financial` VALUES('2018', '1', '5000000', '1000000', '300000', '2000000');"
     dbmanager = Dbmanager()
     sql = sql.replace(';', '')
     while sql.find("'") != -1:
@@ -69,8 +73,17 @@ if __name__ == "__main__":
     reg = "\((.*)\)"
     sql = ' '.join(sql_tokens)
     attributes_string = re.compile(reg).findall(sql)
+
     #print(attributes_string[0])
     attributes_string = attributes_string[0]
     attributes_string = attributes_string.split(", ")
-    #print(attributes_string)
-    create_index(sql_tokens, 2)
+
+    dbmanager_path = os.path.join(os.getcwd(), DB_PATH)
+    db_path = os.path.join(dbmanager_path, 'NOTAP')
+    current_relation_path = os.path.join(db_path, 'EMPLOYEE')
+    with io.open(current_relation_path) as input:
+        # maybe use json or maybe use pickle, not sure
+
+        relation = jsonpickle.decode(input.read())
+
+        print(relation.storage)
