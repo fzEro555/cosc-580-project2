@@ -43,7 +43,7 @@ def insert_into(tokens, dbmanager):
             for row in temp_data:
                 row_primary_key = []
                 for index in primary_key_indexes:
-                    row_primary_key.append(row[index].decode("utf-8"))
+                    row_primary_key.append(row[index].decode('utf-8'))
                 if values_primary_key == row_primary_key:
                     print("Error: insert a duplicate tuple is not allowed")
                     return dbmanager
@@ -59,4 +59,5 @@ def insert_into(tokens, dbmanager):
             for x in range(0, len(values)):
                 np.put(new_table.storage, row_number * col_number + col_indexes[x], values[x])
             table.storage = new_table.storage
+            print("Insert data into table %s successfully" %table_name.upper())
             return dbmanager

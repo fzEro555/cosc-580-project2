@@ -10,6 +10,7 @@ import io
 from os import listdir
 from os.path import isfile, join, isdir
 import numpy as np
+import pickle
 import jsonpickle
 import jsonpickle.ext.numpy as jsonpickle_numpy
 jsonpickle_numpy.register_handlers()
@@ -31,10 +32,13 @@ def load_dbmanager():
         #print(relations)
         for relation in relations:
             current_relation_path = os.path.join(current_db_path, relation)
+            '''
             with io.open(current_relation_path) as input:
-                # maybe use json or maybe use pickle, not sure
-
                 relation = jsonpickle.decode(input.read())
+                database.relations.append(relation)
+            '''
+            with io.open(current_relation_path, 'rb') as input:
+                relation = pickle.load(input)
                 database.relations.append(relation)
     return dbmanager
 
@@ -45,16 +49,17 @@ def save_dbmanager(dbmanager):
     for db in dbmanager.dbs:
         db_path = os.path.join(dbmanager_path, str(db.name))
         for relation in db.relations:
-            print(relation.name)
-            print(relation.storage)
             relation_path = os.path.join(db_path, str(relation.name))
+            '''
             with io.open(relation_path, 'w') as output:
                 output.write(jsonpickle.encode(relation))
-
+            '''
+            with open(relation_path, 'wb') as output:
+                pickle.dump(relation, output, pickle.HIGHEST_PROTOCOL)
 
 def main():
     dbmanager = load_dbmanager()
-    cmd_list = []
+
     cmd = ""
 
     while cmd != "exit":

@@ -7,6 +7,7 @@ import os
 import io
 from table import *
 import jsonpickle
+
 def getAttrCons(attrsCons):
     attrs = attrsCons.split(",")
     i=0
@@ -53,37 +54,129 @@ def create_index(tokens, i):
             print(index[1])
     else:
         return index_name,"", [], i, True
+statement_tag = ["select", "from", "where", "group by", "order by"]
 
+
+def rmListSpace(list):
+    while "" in list:
+        list.remove("")
+    return list
+
+
+def next_tag(sql,current_tag):
+    index = sql.find(current_tag, 0)
+    for tag in statement_tag:
+        if sql.find(tag, index+len(current_tag)) != -1:
+            return tag
+    return ""
+
+
+def rm_str_space(string):
+    list = string.split(" ")
+    list = rmListSpace(list)
+    result = ''
+    for word in list:
+        result += word+" "
+    return result[0:-1]
+
+def parseWhere(sql):
+    conditions = []
+    if "where " not in sql:
+        return None
+    next_keyword = next_tag(sql, "where")
+    reg = "where (.+)"+next_keyword
+    where = re.compile(reg).findall(sql)[0]
+    where_statement = where.split(" and ")
+    for and_statement in where_statement:
+        and_statement = and_statement.split(" or ")
+        for or_statement in and_statement:
+            if "=" in or_statement:
+                compare_keyword = "="
+            elif "<" in or_statement:
+                compare_keyword = "<"
+            elif ">" in or_statement:
+                compare_keyword = ">"
+            elif "<=" in or_statement:
+                compare_keyword = "<="
+            elif ">=" in or_statement:
+                compare_keyword = ">="
+            reg = "^(.+)\s*"+compare_keyword
+            attr = re.compile(reg).findall(or_statement)[0]
+            attr = rm_str_space(attr)
+            reg = compare_keyword+"\s*(.+)$"
+            value = re.compile(reg).findall(or_statement)[0]
+            value = rm_str_space(value)
+            conditions.append(tuple([attr, compare_keyword, value]))
+            conditions.append('or')
+        conditions.pop()
+        conditions.append('and')
+    conditions.pop()
+    return conditions
+def parse_where(i, tokens):
+    i+=1 #this is now just past the where
+    parseFlag = False
+    conditions = []
+    end_of_where = len(tokens) # Assumption: where clause is the last thing in a query
+
+    if (i >= end_of_where):
+        return conditions, i, parseFlag
+
+    where_conditions = tokens[i:end_of_where]
+    # print(where_conditions)
+    split_list = ["and", "or"] # list of valid splitting tokens
+    split_indicies = [] # list of indicies to split conditions on
+    for cond_index in range(len(where_conditions)):
+        if where_conditions[cond_index] in split_list:
+            split_indicies.append(cond_index)
+
+    split_indicies.append(len(where_conditions))
+    print(split_indicies)
+    # There could also be parenthesis in here which determine Order of Operations
+    # Start by assuming there are none
+    start_index = 0
+    for end_index in split_indicies:
+        temp_list = where_conditions[start_index:end_index]
+        # print("Temp list: " + str(temp_list))
+        if len(temp_list) == 3:
+            condition_tuple = tuple(temp_list)
+            conditions.append(condition_tuple)
+        elif temp_list[0] in split_list: #assuming the first thing is a splitting token
+            condition_tuple = (temp_list[0])
+            conditions.append(condition_tuple)
+            condition_tuple2 = tuple(temp_list[1:])
+            conditions.append(condition_tuple2)
+        else:
+            condition_tuple = tuple(temp_list)
+            conditions.append(condition_tuple)
+        start_index = end_index
+
+    # print("Where Conditions: " , conditions)
+    return conditions
 if __name__ == "__main__":
     index = 0
     attrnames = []
     primary = []
-    sql = "INSERT INTO `corporate_financial` VALUES('2018', '1', '5000000', '1000000', '300000', '2000000');"
+    sql = "delete from employee where emp_num = 1 and emp_name = jon;"
     dbmanager = Dbmanager()
+
     sql = sql.replace(';', '')
-    while sql.find("'") != -1:
-        sql = sql.replace("'", "")
+    #while sql.find("'") != -1:
+        #sql = sql.replace("'", "")
     while sql.find('\t') != -1:
         sql = sql.replace("\t", " ")
     while sql.find('\n') != -1:
         sql = sql.replace("\n", " ")
+
     sql_tokens = sql.split(" ")
     sql_tokens[:] = [token.lower() for token in sql_tokens]
     #create_database(0, sql_tokens, dbmanager)
-    reg = "\((.*)\)"
+    #reg = "\((.*)\)"
     sql = ' '.join(sql_tokens)
-    attributes_string = re.compile(reg).findall(sql)
-
-    #print(attributes_string[0])
-    attributes_string = attributes_string[0]
-    attributes_string = attributes_string.split(", ")
-
-    dbmanager_path = os.path.join(os.getcwd(), DB_PATH)
-    db_path = os.path.join(dbmanager_path, 'NOTAP')
-    current_relation_path = os.path.join(db_path, 'EMPLOYEE')
-    with io.open(current_relation_path) as input:
-        # maybe use json or maybe use pickle, not sure
-
-        relation = jsonpickle.decode(input.read())
-
-        print(relation.storage)
+    print(sql)
+    conditions = parse_where(8, sql_tokens)
+    print(conditions)
+    conditions = parseWhere(sql)
+    print(conditions)
+    for condition in conditions:
+        if condition != "and":
+            print(condition[1])

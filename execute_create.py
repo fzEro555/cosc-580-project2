@@ -98,7 +98,7 @@ def create_index(tokens, dbmanager):
                 table = dbmanager.current_db.get_relation(table_name)
                 if not table.index_exists(index_name):
                     table.add_index(index_name, attributes)
-                    print("Index %s is created" %index_name)
+                    print("Index %s is created successfully" %index_name)
                     return dbmanager
                 else:
                     print("Error: Index already exists")

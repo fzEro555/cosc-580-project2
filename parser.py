@@ -4,6 +4,9 @@ from dbmanager import *
 from execute_drop import *
 from execute_create import *
 from execute_insert import *
+from execute_delete import *
+
+
 def parse_sql(sql,dbmanager):
     evaluate_flag = False
     sql = sql.replace(';', '')
@@ -51,9 +54,7 @@ def parse_sql(sql,dbmanager):
 
     elif first_token == "delete":
         if sql_tokens[1] == "from":
-            parse_delete(sql_tokens)
-            if evaluate_flag:
-                pass
+            dbmanager = delete_from(sql_tokens, dbmanager)
         else:
             print("Error: Syntax error")
 
@@ -66,6 +67,31 @@ def parse_sql(sql,dbmanager):
         parse_select()
         if evaluate_flag:
             pass
+
+    elif first_token == "show":
+        # show table
+        if sql_tokens[1] == "table":
+            if dbmanager.current_db == None:
+                print("Error: No database selected")
+            else:
+                table_name = sql_tokens[2]
+                table = dbmanager.get_current_db().get_relation(table_name)
+                if table:
+                    print(table.name)
+                    print(table.storage)
+                else:
+                    print("Error: Table %s not exists" &table_name.upper())
+        # show database
+        elif sql_tokens[1] == "databases":
+            for db in dbmanager.dbs:
+                print(db.name)
+        # show database
+        elif sql_tokens[1] == "database":
+            db = dbmanager.get_db(sql_tokens[2])
+            for table in db.relations:
+                print(table.name)
+        else:
+            print("Error: Syntax error")
 
     # use a database
     elif first_token == "use":
@@ -82,7 +108,6 @@ def parse_sql(sql,dbmanager):
         print("See you~")
 
     return dbmanager
-
 
 
 def parse_insert(tokens):

@@ -61,6 +61,7 @@ def drop_index(tokens, dbmanager):
                                 if tuple[0] == index_name:
                                     relation.indexes.remove(tuple)
                                     print("Index %s dropped successfully" %index_name)
+                                    return dbmanager
                         else:
                             print("Error: Index not exists")
                             return dbmanager
