@@ -5,6 +5,7 @@ from execute_drop import *
 from execute_create import *
 from execute_insert import *
 from execute_delete import *
+from execute_update import *
 
 
 def parse_sql(sql,dbmanager):
@@ -59,9 +60,7 @@ def parse_sql(sql,dbmanager):
             print("Error: Syntax error")
 
     elif first_token == "update":
-        parse_update(sql_tokens)
-        if evaluate_flag:
-            pass
+        dbmanager = update(sql_tokens, dbmanager)
 
     elif first_token == "select":
         parse_select()

@@ -1,6 +1,6 @@
 # coding=utf-8
 import re
-statement_tag = ["select", "from", "where", "group by", "order by"]
+statement_tag = ["select", "from", "set", "where", "group by", "order by"]
 
 
 def remove_list_space(list):
@@ -25,6 +25,36 @@ def remove_string_space(string):
         result += word+" "
     return result[0:-1]
 
+
+def parse_set(sql):
+    new_values = []
+    if "set " not in sql:
+        return new_values
+    next_keyword = next_tag(sql, "set")
+    reg = "set (.+)" + next_keyword
+    set_statement = re.compile(reg).findall(sql)[0]
+    set_statement = set_statement.split(", ")
+    for statement in set_statement:
+        if "=" in statement:
+            compare_keyword = "="
+        elif "!=" in statement:
+            compare_keyword = "!="
+        elif "<" in statement:
+            compare_keyword = "<"
+        elif ">" in statement:
+            compare_keyword = ">"
+        elif "<=" in statement:
+            compare_keyword = "<="
+        elif ">=" in statement:
+            compare_keyword = ">="
+        reg = "^(.+)\s*" + compare_keyword
+        attribute = re.compile(reg).findall(statement)[0]
+        attribute = remove_string_space(attribute)
+        reg = compare_keyword + "\s*(.+)$"
+        value = re.compile(reg).findall(statement)[0]
+        value = remove_string_space(value)
+        new_values.append(tuple([attribute, compare_keyword, value]))
+    return new_values
 
 def parse_where(sql):
     conditions = []

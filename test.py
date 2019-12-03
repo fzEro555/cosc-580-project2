@@ -152,11 +152,44 @@ def parse_where(i, tokens):
 
     # print("Where Conditions: " , conditions)
     return conditions
+
+def parse_set(sql):
+    new_values = []
+    if "set " not in sql:
+        return new_values
+    next_keyword = next_tag(sql, "set")
+    reg = "set (.+)" + next_keyword
+    set_statement = re.compile(reg).findall(sql)[0]
+    set_statement = set_statement.split(", ")
+    for statement in set_statement:
+        if "=" in statement:
+            compare_keyword = "="
+        elif "!=" in statement:
+            compare_keyword = "!="
+        elif "<" in statement:
+            compare_keyword = "<"
+        elif ">" in statement:
+            compare_keyword = ">"
+        elif "<=" in statement:
+            compare_keyword = "<="
+        elif ">=" in statement:
+            compare_keyword = ">="
+        reg = "^(.+)\s*" + compare_keyword
+        attribute = re.compile(reg).findall(statement)[0]
+        attribute = rm_str_space(attribute)
+        reg = compare_keyword + "\s*(.+)$"
+        value = re.compile(reg).findall(statement)[0]
+        value = rm_str_space(value)
+        new_values.append(tuple([attribute, compare_keyword, value]))
+    return new_values
+
+
+
 if __name__ == "__main__":
     index = 0
     attrnames = []
     primary = []
-    sql = "delete from employee where emp_num = 1 and emp_name = jon;"
+    sql = "update employee set emp_num = 1, emp_name = jon where emp_num = 1 and emp_name = jon;"
     dbmanager = Dbmanager()
 
     sql = sql.replace(';', '')
@@ -173,10 +206,9 @@ if __name__ == "__main__":
     #reg = "\((.*)\)"
     sql = ' '.join(sql_tokens)
     print(sql)
-    conditions = parse_where(8, sql_tokens)
-    print(conditions)
+
     conditions = parseWhere(sql)
     print(conditions)
-    for condition in conditions:
-        if condition != "and":
-            print(condition[1])
+
+    new_values = parse_set(sql)
+    print(new_values)

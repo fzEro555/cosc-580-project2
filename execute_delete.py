@@ -100,8 +100,6 @@ def delete_from(tokens, dbmanager):
                         else:
                             table.storage = np.delete(table.storage, intersect_rows, axis=0)
                             table.set_row_number(row_number - len(intersect_rows))
-                            print("Delete tuples successfully.")
-                            # print(table.relation)
+                            print("Delete tuples successfully")
                     condition_index += 2
-                # print(database)
                 return dbmanager
