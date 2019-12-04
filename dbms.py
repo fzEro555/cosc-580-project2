@@ -103,6 +103,7 @@ def load_relation():
     return dbmanager
 
 def main():
+    #dbmanager = load_relation()
     dbmanager = load_dbmanager()
     cmd = ""
 
