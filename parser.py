@@ -82,7 +82,7 @@ def parse_sql(sql,dbmanager):
                     print(table.name)
                     print(table.storage)
                 else:
-                    print("Error: Table %s not exists" &table_name.upper())
+                    print("Error: Table %s not exists" %table_name.upper())
         # show database
         elif sql_tokens[1] == "databases":
             for db in dbmanager.dbs:
