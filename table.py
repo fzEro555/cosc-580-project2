@@ -19,7 +19,8 @@ class Table:
 
     def set_attributes(self, attribute_names):
         for attribute in attribute_names:
-            self.attributes.append(attribute)
+            if attribute not in self.attributes:
+                self.attributes.append(attribute)
 
     def set_row_number(self, row_num):
         self.row_number = row_num

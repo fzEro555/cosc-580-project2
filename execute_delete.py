@@ -52,7 +52,7 @@ def delete_from(tokens, dbmanager):
                     attribute_index = attributes.index(condition_attribute)
                     # a list used to contain all values of every row of the attribute in condition
                     row_values = []
-                    row_nums_matched = []
+                    matched_row_number = []
                     for x in range(1, row_number):
                         row_values.append((x, np.take(table.storage, x * col_number + attribute_index).decode('utf-8')))
 
@@ -60,24 +60,24 @@ def delete_from(tokens, dbmanager):
                         # get the row numbers for each operation of the value
                         if conditions[condition_index][1] == "=":
                             if row_values[row_value][1] == condition_value:
-                                row_nums_matched.append(row_values[row_value][0])
+                                matched_row_number.append(row_values[row_value][0])
                         elif conditions[condition_index][1] == "!=":
                             if row_values[row_value][1] != condition_value:
-                                row_nums_matched.append(row_values[row_value][0])
+                                matched_row_number.append(row_values[row_value][0])
                         elif conditions[condition_index][1] == "<":
                             if int(row_values[row_value][1]) < int(condition_value):
-                                row_nums_matched.append(row_values[row_value][0])
+                                matched_row_number.append(row_values[row_value][0])
                         elif conditions[condition_index][1] == ">":
                             if int(row_values[row_value][1]) > int(condition_value):
-                                row_nums_matched.append(row_values[row_value][0])
+                                matched_row_number.append(row_values[row_value][0])
                         elif conditions[condition_index][1] == "<=":
                             if int(row_values[row_value][1]) <= int(condition_value):
-                                row_nums_matched.append(row_values[row_value][0])
+                                matched_row_number.append(row_values[row_value][0])
                         elif conditions[condition_index][1] == ">=":
                             if int(row_values[row_value][1]) >= int(condition_value):
-                                row_nums_matched.append(row_values[row_value][0])
+                                matched_row_number.append(row_values[row_value][0])
 
-                    match_rows.append(row_nums_matched)
+                    match_rows.append(matched_row_number)
 
                     if len(match_rows) > 1:
                         if conditions[condition_index - 1] == "and":

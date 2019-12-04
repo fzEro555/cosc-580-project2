@@ -6,7 +6,8 @@ from execute_create import *
 from execute_insert import *
 from execute_delete import *
 from execute_update import *
-
+from execute_select import *
+from utils import *
 
 def parse_sql(sql,dbmanager):
     evaluate_flag = False
@@ -63,9 +64,11 @@ def parse_sql(sql,dbmanager):
         dbmanager = update(sql_tokens, dbmanager)
 
     elif first_token == "select":
-        parse_select()
-        if evaluate_flag:
-            pass
+        sql_temp = ' '.join(sql_tokens)
+        attributes = parse_select(sql_temp)
+        tables = parse_from(sql_temp)
+        conditions = parse_where(sql_temp)
+        select_from(attributes, tables, conditions, dbmanager)
 
     elif first_token == "show":
         # show table
@@ -107,17 +110,3 @@ def parse_sql(sql,dbmanager):
         print("See you~")
 
     return dbmanager
-
-
-def parse_insert(tokens):
-    pass
-
-def parse_delete(tokens):
-    pass
-
-def parse_update(tokens):
-    pass
-
-def parse_select(tokens):
-    pass
-

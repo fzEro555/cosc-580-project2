@@ -7,7 +7,7 @@ import os
 import io
 from table import *
 import jsonpickle
-
+from collections import OrderedDict
 def getAttrCons(attrsCons):
     attrs = attrsCons.split(",")
     i=0
@@ -184,12 +184,48 @@ def parse_set(sql):
     return new_values
 
 
+def parse_select(sql):
+    reg = "select (.+) from"
+    select = re.compile(reg).findall(sql)[0]
+    attributes = select.split(", ")
+    return attributes
+
+def parse_from(sql):
+    tables = []
+    next_keyword = next_tag(sql, "from")
+    reg = "from (.+) " + next_keyword
+    from_statement = re.compile(reg).findall(sql)[0]
+    from_statement = from_statement.split(", ")
+    if len(from_statement) == 1:
+        tables.append(from_statement)
+    else:
+        for statement in from_statement:
+            statement = statement.split(" ")
+            table_alias = (statement[0], statement[1])
+            tables.append(table_alias)
+    return tables
+
+def set_attributes(attributes, attribute_names):
+        for attribute in attribute_names:
+            attributes.append(attribute)
+        return attributes
+
+def print_result(result):
+    output_list = []
+    for x in range(0,len(result)):
+        output_list.append(result[x])
+
+    for item in output_list:
+        print('{0: <10}'.format(item), end= " ")
+
+    print("")
+
 
 if __name__ == "__main__":
     index = 0
     attrnames = []
     primary = []
-    sql = "update employee set emp_num = 1, emp_name = jon where emp_num = 1 and emp_name = jon;"
+    sql = "select * from employee"
     dbmanager = Dbmanager()
 
     sql = sql.replace(';', '')
@@ -205,10 +241,7 @@ if __name__ == "__main__":
     #create_database(0, sql_tokens, dbmanager)
     #reg = "\((.*)\)"
     sql = ' '.join(sql_tokens)
-    print(sql)
 
-    conditions = parseWhere(sql)
-    print(conditions)
 
-    new_values = parse_set(sql)
-    print(new_values)
+    attributes = parse_select(sql)
+    print(attributes)

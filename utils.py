@@ -91,3 +91,35 @@ def parse_where(sql):
         conditions.append('and')
     conditions.pop()
     return conditions
+
+def parse_select(sql):
+    attributes = []
+    reg = "select (.+) from"
+    select_statement = re.compile(reg).findall(sql)[0]
+    select_statement = select_statement.split(", ")
+    if len(select_statement) == 1:
+        attributes.append(select_statement[0])
+    else:
+        attributes = select_statement
+    return attributes
+
+def parse_from(sql):
+    tables = []
+    next_keyword = next_tag(sql, "from")
+    reg = "from (.+)" + next_keyword
+    from_statement = re.compile(reg).findall(sql)[0]
+
+    from_statement = from_statement.split(", ")
+    for statement in from_statement:
+        statement = statement.rstrip()
+
+    # suppose that if there is only one table in the from statement, then no alias
+    if len(from_statement) == 1:
+        tables.append(from_statement[0])
+    # suppose that if there is more than one table in the from statement, then must have alias
+    elif len(from_statement) > 1:
+        for statement in from_statement:
+            statement = statement.split(" ")
+            table_alias = (statement[0], statement[1])
+            tables.append(table_alias)
+    return tables

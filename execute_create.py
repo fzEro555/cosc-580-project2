@@ -93,7 +93,7 @@ def create_index(tokens, dbmanager):
             sql = ' '.join(tokens)
             attributes_string = re.compile(reg).findall(sql)
             attributes = attributes_string[0]
-            attributes = attributes.split(", ")
+            #attributes = attributes.split(", ")
             if dbmanager.current_db.relation_exists(table_name):
                 table = dbmanager.current_db.get_relation(table_name)
                 if not table.index_exists(index_name):

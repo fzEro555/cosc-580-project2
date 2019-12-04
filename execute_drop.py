@@ -1,7 +1,6 @@
 # coding=utf-8
 from dbmanager import *
 from table import *
-import re
 from settings import *
 import os
 import shutil
