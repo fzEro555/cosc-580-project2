@@ -339,7 +339,7 @@ def merge_join(table1, table2, attribute1, attribute2):
     row_counter = 0
     table1_row_index = []
     table2_row_index = []
-    while i + j < len(sorted_table1) + len(sorted_table2):
+    while i < len(sorted_table1) and j < len(sorted_table2):
         if sorted_table1[i][attribute1_index] == sorted_table2[j][attribute2_index]:
             table1_row_index.append(i)
             table2_row_index.append(j)
