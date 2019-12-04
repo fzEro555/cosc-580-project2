@@ -10,7 +10,7 @@ from execute_select import *
 from utils import *
 
 def parse_sql(sql,dbmanager):
-    evaluate_flag = False
+
     sql = sql.replace(';', '')
     while sql.find("'") != -1:
         sql = sql.replace("'", "")
@@ -68,6 +68,7 @@ def parse_sql(sql,dbmanager):
         attributes = parse_select(sql_temp)
         tables = parse_from(sql_temp)
         conditions = parse_where(sql_temp)
+
         select_from(attributes, tables, conditions, dbmanager)
 
     elif first_token == "show":

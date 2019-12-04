@@ -10,6 +10,7 @@ def select_from(attributes, tables, conditions, dbmanager):
     if dbmanager.current_db == None:
         print("Error: No database selected")
         return
+
     else:
         current_db = dbmanager.get_current_db()
         results = []
@@ -38,8 +39,9 @@ def select_from(attributes, tables, conditions, dbmanager):
                                 else:
                                     index_flag = True
                                     for temp_condition in conditions:
-                                        if temp_condition is not condition:
+                                        if temp_condition is not condition and temp_condition != "and" and temp_condition != "or":
                                             none_index_conditions.append(temp_condition)
+
         # suppose only one join condition for a select query
         if len(tables) == 1:
             if not current_db.relation_exists(tables[0]):
@@ -54,6 +56,10 @@ def select_from(attributes, tables, conditions, dbmanager):
                     join_index = conditions.index(condition)
             join_condition = conditions[join_index]
             conditions.remove(join_condition)
+            if "and" in conditions:
+                conditions.remove("and")
+            if "or" in conditions:
+                conditions.remove("or")
 
             table1_name = tables[0][0]
             table1_alias = tables[0][1]
@@ -74,10 +80,10 @@ def select_from(attributes, tables, conditions, dbmanager):
             table1 = current_db.get_relation(table1_name)
             table2 = current_db.get_relation(table2_name)
 
-            table1_size = table1.row_number
-            table2_size = table2.row_number
+            table1_size = table1.row_number-1
+            table2_size = table2.row_number-1
 
-            if table1_size/table2_size > 1000 or table2_size/table1_size > 1000:
+            if int(table1_size/table2_size) > 1000 or int(table2_size/table1_size > 1000):
                 table = nested_loop(table1, table2, table1_attribute, table2_attribute)
 
             else:
@@ -86,9 +92,13 @@ def select_from(attributes, tables, conditions, dbmanager):
         table_attributes = table.attributes
         for condition in conditions:
             if condition != "and" and condition != "or":
-                if not table.column_exists(condition[0]):
+                if "." in condition[0]:
+                    attribute = condition[0].split(".")[1]
+                else:
+                    attribute = condition[0]
+                if not table.column_exists(attribute):
                     print("Error: attribute not exists in table")
-
+        # select some attributes
         if attributes[0] != "*":
             attributes_indexes = []
             for attribute in attributes:
@@ -102,12 +112,11 @@ def select_from(attributes, tables, conditions, dbmanager):
                     results = select_with_one_condition(table, table_attributes, conditions, attributes_indexes)
                 else:
                     results = select_with_multiple_condition(table, table_attributes. conditions, attributes_indexes)
-
+        # select all
         else:
             attributes_indexes = []
             for attribute in table.attributes:
                 attributes_indexes.append(table_attributes.index(attribute))
-
             if not conditions:
                 results = select_without_condition(table, attributes_indexes)
             else:
@@ -160,7 +169,10 @@ def select_without_condition(table, attributes_indexes):
 
 
 def select_with_one_condition(table, table_attributes, conditions, attributes_indexes):
-    attribute = conditions[0][0]
+    if "." in conditions[0][0]:
+        attribute = conditions[0][0].split(".")[1]
+    else:
+        attribute = conditions[0][0]
     value = conditions[0][2]
     attribute_index = table_attributes.index(attribute)
     row_number = table.row_number
@@ -195,6 +207,10 @@ def select_with_one_condition(table, table_attributes, conditions, attributes_in
         return []
     else:
         results = []
+        attributes = []
+        for i in attributes_indexes:
+            attributes.append(np.take(table.storage, i))
+        print_result(attributes)
         row = attributes_indexes[:]
         for row_num in matched_row_number:
             for x in range(0, len(attributes_indexes)):
@@ -278,6 +294,10 @@ def select_with_multiple_condition(table, table_attributes, conditions, attribut
                 return results
             else:
                 row = attributes_indexes[:]
+                attributes = []
+                for i in attributes_indexes:
+                    attributes.append(np.take(table.storage, i))
+                print_result(attributes)
                 for row_num in matched_row_number:
                     for x in range(0, len(attributes_indexes)):
                         row[x] = row_num * col_number + attributes_indexes[x]
@@ -414,7 +434,7 @@ def nested_loop(table1, table2, attribute1, attribute2):
 
         temp_table1.pop(0)
         temp_table2.pop(0)
-
+        print()
     except:
         temp_table1 = table1.storage.tolist()
         temp_table2 = table2.storage.tolist()
@@ -428,13 +448,14 @@ def nested_loop(table1, table2, attribute1, attribute2):
         temp_table1.pop(0)
         temp_table2.pop(0)
 
+
     # match rows
     row_counter = 0
     table1_row_index = []
     table2_row_index = []
 
-    for i in range(1, len(temp_table1)):
-        for j in range(1,len(temp_table2)):
+    for i in range(0, len(temp_table1)):
+        for j in range(0,len(temp_table2)):
             if temp_table1[i][attribute1_index] == temp_table2[j][attribute2_index]:
                 table1_row_index.append(i)
                 table2_row_index.append(j)
