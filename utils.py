@@ -115,11 +115,11 @@ def parse_from(sql):
 
     # suppose that if there is only one table in the from statement, then no alias
     if len(from_statement) == 1:
-        tables.append(from_statement[0])
+        tables.append(from_statement[0].rstrip())
     # suppose that if there is more than one table in the from statement, then must have alias
     elif len(from_statement) > 1:
         for statement in from_statement:
             statement = statement.split(" ")
-            table_alias = (statement[0], statement[1])
+            table_alias = (statement[0], statement[1].rstrip())
             tables.append(table_alias)
     return tables

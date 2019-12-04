@@ -22,6 +22,7 @@ def select_from(attributes, tables, conditions, dbmanager):
                 table_name = table[0]
             else:
                 table_name = table
+
             if not current_db.relation_exists(table_name):
                 print("Error: Relation not exists")
                 return
@@ -43,6 +44,7 @@ def select_from(attributes, tables, conditions, dbmanager):
                                             none_index_conditions.append(temp_condition)
 
         # suppose only one join condition for a select query
+
         if len(tables) == 1:
             if not current_db.relation_exists(tables[0]):
                 print("Error: Relation not exists")
@@ -102,6 +104,10 @@ def select_from(attributes, tables, conditions, dbmanager):
         if attributes[0] != "*":
             attributes_indexes = []
             for attribute in attributes:
+                if "." in attribute:
+                    attribute = attribute.split(".")[1]
+                else:
+                    attribute = attribute
                 attributes_indexes.append(table_attributes.index(attribute))
 
             if not conditions:
@@ -434,7 +440,7 @@ def nested_loop(table1, table2, attribute1, attribute2):
 
         temp_table1.pop(0)
         temp_table2.pop(0)
-        print()
+
     except:
         temp_table1 = table1.storage.tolist()
         temp_table2 = table2.storage.tolist()
